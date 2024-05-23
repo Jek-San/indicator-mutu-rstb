@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.wider-column {
+  min-width: 1000px !important;
+  /* Adjust the width as needed */
+}
