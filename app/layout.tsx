@@ -14,7 +14,7 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <html lang="en">
       <head>{/* Additional meta tags can be added here */}</head>
-      <body className="bg-gray-900 text-white font-sans h-full">
+      <body className="bg-gray-900 text-black font-sans h-full">
         <ClientSideRender>{children}</ClientSideRender>
       </body>
     </html>

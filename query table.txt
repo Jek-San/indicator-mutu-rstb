@@ -1,9 +1,11 @@
 -- Drop tables created by the first query
+DROP TABLE IF EXISTS simrs_unit;
+DROP TABLE IF EXISTS simrs_menu;
 DROP TABLE IF EXISTS simrs_n_values;
 DROP TABLE IF EXISTS simrs_d_values;
 DROP TABLE IF EXISTS simrs_indicator;
-DROP TABLE IF EXISTS simrs_menu;
-DROP TABLE IF EXISTS simrs_unit;
+DROP TABLE IF EXISTS simrs_naming;
+DROP TABLE IF EXISTS simrs_mutu_users;
 
 -- New query
 CREATE TABLE IF NOT EXISTS simrs_unit (
@@ -49,79 +51,72 @@ CREATE TABLE IF NOT EXISTS simrs_naming (
     FOREIGN KEY (indicator_id) REFERENCES simrs_indicator(id)
 );
 
-CREATE TABLE simrs_mutu_users (
+CREATE TABLE IF NOT EXISTS simrs_mutu_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-		
+    password VARCHAR(255) NOT NULL
 );
+
 ALTER TABLE simrs_mutu_users
 ADD COLUMN unit_id INT,
 ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT FALSE,
 ADD CONSTRAINT fk_unit_id FOREIGN KEY (unit_id) REFERENCES simrs_unit(id);
 
-
-
-
--- -------------------------------------------
--- QUERY TO INSERT DUMMY DATA
 -- Inserting dummy data into the simrs_unit table
--- Inserting dummy data into the simrs_unit table
-INSERT INTO simrs_unit (id, name) VALUES
-(1, 'Unit HCU'),
-(2, 'Unit Perinatologi');
+INSERT INTO simrs_unit (name) VALUES
+('Unit HCU'),
+('Unit Perinatologi');
 
 -- Inserting dummy data into the simrs_menu table
-INSERT INTO simrs_menu (id, name, unit_id) VALUES
-(1, 'Unit', 1),
-(2, 'Perawat', 1),
-(3, 'Menu 3', 2);
+INSERT INTO simrs_menu (name, unit_id) VALUES
+('Unit', 1),
+('Perawat', 1),
+('Menu 3', 2);
 
 -- Inserting dummy data into the simrs_indicator table
-INSERT INTO simrs_indicator (id, name, menu_id) VALUES
-(1, 'Kepatuhan jam visite dokter spesialis', 1),
-(2, 'Indicator 2', 2),
-(3, 'Indicator 3', 3);
+INSERT INTO simrs_indicator (name, menu_id) VALUES
+('Kepatuhan jam visite dokter spesialis', 1),
+('Indicator 2', 2),
+('Indicator 3', 3);
 
 -- Inserting dummy data into the simrs_n_values table
-INSERT INTO simrs_n_values (id, indicator_id, date, value) VALUES
+INSERT INTO simrs_n_values (indicator_id, date, value) VALUES
 -- Indicator 1 data
-(NULL, 1, '2024-04-01', 3),
-(NULL, 1, '2024-04-02', 3),
-(NULL, 1, '2024-04-03', 3),
+(1, '2024-04-01', 3),
+(1, '2024-04-02', 3),
+(1, '2024-04-03', 3),
 -- Indicator 2 data
-(NULL, 2, '2024-04-01', 4),
-(NULL, 2, '2024-04-02', 4),
-(NULL, 2, '2024-04-03', 4),
+(2, '2024-04-01', 4),
+(2, '2024-04-02', 4),
+(2, '2024-04-03', 4),
 -- Indicator 3 data
-(NULL, 3, '2024-04-01', 5),
-(NULL, 3, '2024-04-02', 5),
-(NULL, 3, '2024-04-03', 5);
+(3, '2024-04-01', 5),
+(3, '2024-04-02', 5),
+(3, '2024-04-03', 5);
 
 -- Inserting dummy data into the simrs_d_values table
-INSERT INTO simrs_d_values (id, indicator_id, date, value) VALUES
+INSERT INTO simrs_d_values (indicator_id, date, value) VALUES
 -- Indicator 1 data
-(NULL, 1, '2024-04-01', 3),
-(NULL, 1, '2024-04-02', 3),
-(NULL, 1, '2024-04-03', 3),
+(1, '2024-04-01', 3),
+(1, '2024-04-02', 3),
+(1, '2024-04-03', 3),
 -- Indicator 2 data
-(NULL, 2, '2024-04-01', 4),
-(NULL, 2, '2024-04-02', 4),
-(NULL, 2, '2024-04-03', 4),
+(2, '2024-04-01', 4),
+(2, '2024-04-02', 4),
+(2, '2024-04-03', 4),
 -- Indicator 3 data
-(NULL, 3, '2024-04-01', 5),
-(NULL, 3, '2024-04-02', 5),
-(NULL, 3, '2024-04-03', 5);
+(3, '2024-04-01', 5),
+(3, '2024-04-02', 5),
+(3, '2024-04-03', 5);
 
 -- Inserting dummy data into the simrs_naming table
-INSERT INTO simrs_naming (id, indicator_id, n_name, d_name) VALUES
+INSERT INTO simrs_naming (indicator_id, n_name, d_name) VALUES
 -- Indicator 1 naming
-(NULL, 1, 'Jumlah pasien yang divisite dokter pada pukul 06.00- 14:00', 'Jumlah pasien yang diobservasi'),
+(1, 'Jumlah pasien yang divisite dokter pada pukul 06.00- 14:00', 'Jumlah pasien yang diobservasi'),
 -- Indicator 2 naming
-(NULL, 2, 'Custom_N_Name_2', 'Custom_D_Name_2'),
+(2, 'Custom_N_Name_2', 'Custom_D_Name_2'),
 -- Indicator 3 naming
-(NULL, 3, 'Custom_N_Name_3', 'Custom_D_Name_3');
-
+(3, 'Custom_N_Name_3', 'Custom_D_Name_3');
 
 -- Tes Select
 
