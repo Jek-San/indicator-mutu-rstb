@@ -25,6 +25,21 @@ CREATE TABLE IF NOT EXISTS simrs_indicator (
     FOREIGN KEY (menu_id) REFERENCES simrs_menu(id)
 );
 
+CREATE TABLE IF NOT EXISTS simrs_n_values (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    indicator_id INT,
+    date DATE,
+    value INT,
+    FOREIGN KEY (indicator_id) REFERENCES simrs_indicator(id)
+);
+
+CREATE TABLE IF NOT EXISTS simrs_d_values (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    indicator_id INT,
+    date DATE,
+    value INT,
+    FOREIGN KEY (indicator_id) REFERENCES simrs_indicator(id)
+);
 
 CREATE TABLE IF NOT EXISTS simrs_naming (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -34,28 +49,19 @@ CREATE TABLE IF NOT EXISTS simrs_naming (
     FOREIGN KEY (indicator_id) REFERENCES simrs_indicator(id)
 );
 
-	CREATE TABLE IF NOT EXISTS simrs_indicator_values (
-		indicator_id INT,
-		date DATE,
-		value INT,
-		type ENUM('N', 'D'), -- Type indicator: N or D
-		PRIMARY KEY (`indicator_id`, `date`, `type`),
-		FOREIGN KEY (indicator_id) REFERENCES simrs_indicator(id)
-	);
-	
-	CREATE TABLE simrs_mutu_users (
+CREATE TABLE simrs_mutu_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255) NOT NULL,
+		
 );
+ALTER TABLE simrs_mutu_users
+ADD COLUMN unit_id INT,
+ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+ADD CONSTRAINT fk_unit_id FOREIGN KEY (unit_id) REFERENCES simrs_unit(id);
 
 
-ALTER TABLE simrs_naming
-ADD CONSTRAINT unique_indicator_naming UNIQUE (indicator_id, n_name, d_name);
 
-
-ALTER TABLE simrs_naming
-ADD CONSTRAINT unique_indicator_id UNIQUE (indicator_id);
 
 -- -------------------------------------------
 -- QUERY TO INSERT DUMMY DATA
@@ -110,358 +116,64 @@ INSERT INTO simrs_d_values (id, indicator_id, date, value) VALUES
 -- Inserting dummy data into the simrs_naming table
 INSERT INTO simrs_naming (id, indicator_id, n_name, d_name) VALUES
 -- Indicator 1 naming
-(NULL, 1, 'Custom_N_Name_1', 'Custom_D_Name_1'),
+(NULL, 1, 'Jumlah pasien yang divisite dokter pada pukul 06.00- 14:00', 'Jumlah pasien yang diobservasi'),
 -- Indicator 2 naming
 (NULL, 2, 'Custom_N_Name_2', 'Custom_D_Name_2'),
 -- Indicator 3 naming
 (NULL, 3, 'Custom_N_Name_3', 'Custom_D_Name_3');
 
 
+-- Tes Select
 
+SELECT 
+    CONCAT('Data for ', simrs_indicator.name) AS indicator_name,
+    CONCAT('Numerator ', simrs_indicator.name) AS numerator_indicator_name,
+    CONCAT('Denominator ', simrs_indicator.name) AS denumerator_indicator_name,
+    DAY(simrs_n_values.date) AS day,
+    simrs_n_values.value AS numerator_value,
+    simrs_d_values.value AS denumerator_value
+FROM 
+    simrs_indicator
+LEFT JOIN 
+    simrs_n_values ON simrs_indicator.id = simrs_n_values.indicator_id
+LEFT JOIN 
+    simrs_d_values ON simrs_indicator.id = simrs_d_values.indicator_id
+ORDER BY 
+    simrs_indicator.id, DAY(simrs_n_values.date);
+		
 
--- contoh select
-how to got the json
-
-[
-	{
-		"indicator_id" : "1"
-		"indicator_name: "idicator name"
-			{
-				{
-					d_naming: "nname"
-					d_values: {
-								{in here is data that store in monly, so specificly it minimum will has 28 value}
-							  }
-				}
-					n_naming: "dname"
-					n_values: {
-								{in here is data that store in monly, so specificly it minimum will has 28 value}
-							  }
-				
-			}
-	{
-	
-	}
-	}
-
-]
-
-
-
-
-robust transaction 
-
-<?php
-
-// Include the database connection functions
-require_once("db.php");
-
-// Establish database connection using PDO
-$pdo = connectToDatabase();
-
-// Assuming you are passing data to update via JSON in the request body
-$input_data = json_decode(file_get_contents('php://input'), true);
-
-// Check if the required data is present
-if ($_SERVER['REQUEST_METHOD'] === 'PUT' && isset($input_data['id'], $input_data['update_fields'])) {
-    try {
-        // Begin transaction
-        $pdo->beginTransaction();
-
-        // Extract data from the JSON body
-        $id = $input_data['id'];
-        $update_fields = $input_data['update_fields'];
-
-        // Prepare the select query to fetch existing data
-        $select_query = "SELECT * FROM simrs_indicator WHERE id = :id FOR UPDATE";
-
-        // Prepare and execute the select query
-        $select_stmt = $pdo->prepare($select_query);
-        $select_stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $select_stmt->execute();
-
-        // Fetch existing data
-        $existing_data = $select_stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Check if the record exists
-        if ($existing_data) {
-            $update_values = array();
-            $update_params = array(':id' => $id);
-
-            // Construct the update query dynamically based on provided update fields
-            $update_query = "UPDATE simrs_indicator SET ";
-            foreach ($update_fields as $field => $value) {
-                // Check if the field has changed
-                if ($existing_data[$field] !== $value) {
-                    $update_query .= "$field = :$field, ";
-                    $update_values[":$field"] = $value;
-                }
-            }
-            // Remove the trailing comma and space
-            $update_query = rtrim($update_query, ', ');
-
-            // Check if any fields need to be updated
-            if (!empty($update_values)) {
-                // Prepare the query
-                $update_stmt = $pdo->prepare($update_query);
-
-                // Bind parameters
-                foreach ($update_values as $param => $value) {
-                    $update_stmt->bindValue($param, $value);
-                }
-
-                // Execute the update query
-                $update_stmt->execute();
-
-                // Commit transaction
-                $pdo->commit();
-
-                // Check if the update was successful
-                if ($update_stmt->rowCount() > 0) {
-                    // Return success response
-                    http_response_code(200);
-                    echo json_encode(array("message" => "Record updated successfully"));
-                } else {
-                    // Return error response if the record was not found or not updated
-                    http_response_code(500);
-                    echo json_encode(array("message" => "Failed to update record"));
-                }
-            } else {
-                // If the data is the same, return a success response
-                http_response_code(200);
-                echo json_encode(array("message" => "Record already up to date"));
-            }
-        } else {
-            // Return error response if the record was not found
-            http_response_code(404);
-            echo json_encode(array("message" => "Record not found"));
-        }
-    } catch (PDOException $e) {
-        // Rollback transaction on error
-        $pdo->rollBack();
-
-        // Return error response
-        http_response_code(500);
-        echo json_encode(array("message" => "Database error: " . $e->getMessage()));
-    }
-} else {
-    // Return error response if the request method is not PUT or required data is missing
-    http_response_code(400);
-    echo json_encode(array("message" => "Invalid request or missing required data"));
-}
+-- tes select 2
+SELECT 
+    CONCAT('Data for ', simrs_indicator.name) AS indicator_name,
+    GROUP_CONCAT(CONCAT('Numerator ', simrs_indicator.name) ORDER BY DAY(simrs_n_values.date) SEPARATOR ', ') AS numerator_indicator_name,
+    GROUP_CONCAT(CONCAT('Denominator ', simrs_indicator.name) ORDER BY DAY(simrs_d_values.date) SEPARATOR ', ') AS denumerator_indicator_name,
+    GROUP_CONCAT(DAY(simrs_n_values.date) ORDER BY DAY(simrs_n_values.date) SEPARATOR ', ') AS day,
+    GROUP_CONCAT(simrs_n_values.value ORDER BY DAY(simrs_n_values.date) SEPARATOR ', ') AS numerator_values,
+    GROUP_CONCAT(simrs_d_values.value ORDER BY DAY(simrs_d_values.date) SEPARATOR ', ') AS denominator_values
+FROM 
+    simrs_indicator
+LEFT JOIN 
+    simrs_n_values ON simrs_indicator.id = simrs_n_values.indicator_id
+LEFT JOIN 
+    simrs_d_values ON simrs_indicator.id = simrs_d_values.indicator_id
+GROUP BY 
+    simrs_indicator.id;
 
 
 
-
-
-
-ADD ORIGINAL
-
-import { GridColDef } from "@mui/x-data-grid";
-import "./add.scss";
-// import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-type Props = {
-  slug: string;
-  columns: GridColDef[];
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-const Add = (props: Props) => {
-
-  // TEST THE API
-
-  // const queryClient = useQueryClient();
-
-  // const mutation = useMutation({
-  //   mutationFn: () => {
-  //     return fetch(`http://localhost:8800/api/${props.slug}s`, {
-  //       method: "post",
-  //       headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         id: 111,
-  //         img: "",
-  //         lastName: "Hello",
-  //         firstName: "Test",
-  //         email: "testme@gmail.com",
-  //         phone: "123 456 789",
-  //         createdAt: "01.02.2023",
-  //         verified: true,
-  //       }),
-  //     });
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries([`all${props.slug}s`]);
-  //   },
-  // });
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    //add new item
-    // mutation.mutate();
-    props.setOpen(false)
-  };
-  return (
-    <div className="add">
-      <div className="modal">
-        <span className="close" onClick={() => props.setOpen(false)}>
-          X
-        </span>
-        <h1>Add new {props.slug}</h1>
-        <form onSubmit={handleSubmit}>
-          {props.columns
-            .filter((item) => item.field !== "id" && item.field !== "img")
-            .map((column) => (
-              <div className="item">
-                <label>{column.headerName}</label>
-                <input type={column.type} placeholder={column.field} />
-              </div>
-            ))}
-          <button>Send</button>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-export default Add;
-
-
-const jsonData = [
-    {
-      indicator_id: 1,
-      indicator_name: "Indicator 1",
-      d_name: "dnaming",
-	  d_values:[
-				{ date: "2024-01-03", value: 7 },
-				{ date: "2024-01-04", value: 3 },
-				{ date: "2024-01-05", value: 9 },
-				{ date: "2024-01-06", value: 2 },
-				{ date: "2024-01-07", value: 5 },
-				{ date: "2024-01-08", value: 8 },
-				{ date: "2024-01-09", value: 6 },
-				{ date: "2024-01-10", value: 4 },
-				{ date: "2024-01-11", value: 1 },
-				{ date: "2024-01-12", value: 10 },
-				{ date: "2024-01-13", value: 7 },
-				{ date: "2024-01-14", value: 3 },
-				{ date: "2024-01-15", value: 9 },
-				{ date: "2024-01-16", value: 2 },
-				{ date: "2024-01-17", value: 5 },
-				{ date: "2024-01-18", value: 8 },
-				{ date: "2024-01-19", value: 6 },
-				{ date: "2024-01-20", value: 4 },
-				{ date: "2024-01-21", value: 1 },
-				{ date: "2024-01-22", value: 10 },
-				{ date: "2024-01-23", value: 7 },
-				{ date: "2024-01-24", value: 3 },
-				{ date: "2024-01-25", value: 9 },
-				{ date: "2024-01-26", value: 2 },
-				{ date: "2024-01-27", value: 5 },
-				{ date: "2024-01-28", value: 8 },
-				{ date: "2024-01-29", value: 6 },
-				{ date: "2024-01-30", value: 4 },
-				{ date: "2024-01-31", value: 1 }
-			]
-
-      
-      n_name:"nnaming",
-	  n_values: [
-					{ date: "2024-01-03", value: 7 },
-					{ date: "2024-01-04", value: 3 },
-					{ date: "2024-01-05", value: 9 },
-					{ date: "2024-01-06", value: 2 },
-					{ date: "2024-01-07", value: 5 },
-					{ date: "2024-01-08", value: 8 },
-					{ date: "2024-01-09", value: 6 },
-					{ date: "2024-01-10", value: 4 },
-					{ date: "2024-01-11", value: 1 },
-					{ date: "2024-01-12", value: 10 },
-					{ date: "2024-01-13", value: 7 },
-					{ date: "2024-01-14", value: 3 },
-					{ date: "2024-01-15", value: 9 },
-					{ date: "2024-01-16", value: 2 },
-					{ date: "2024-01-17", value: 5 },
-					{ date: "2024-01-18", value: 8 },
-					{ date: "2024-01-19", value: 6 },
-					{ date: "2024-01-20", value: 4 },
-					{ date: "2024-01-21", value: 1 },
-					{ date: "2024-01-22", value: 10 },
-					{ date: "2024-01-23", value: 7 },
-					{ date: "2024-01-24", value: 3 },
-					{ date: "2024-01-25", value: 9 },
-					{ date: "2024-01-26", value: 2 },
-					{ date: "2024-01-27", value: 5 },
-					{ date: "2024-01-28", value: 8 },
-					{ date: "2024-01-29", value: 6 },
-					{ date: "2024-01-30", value: 4 },
-					{ date: "2024-01-31", value: 1 }
-				
-				]
-    },
-    
-  ];
-  
-  
-  
-  
-  
-  <?php
-
-// Include the database connection functions
-require_once("db.php");
-
-// Establish database connection using PDO
-$pdo = connectToDatabase();
-
-// Construct the base SQL query
-$query = "SELECT 
-              simrs_naming.indicator_id,
-              simrs_naming.n_name,
-              simrs_naming.d_name,
-              simrs_indicator_values.date,
-              simrs_indicator_values.value,
-              simrs_indicator_values.type
-          FROM 
-              simrs_naming 
-          LEFT JOIN 
-              simrs_indicator_values 
-          ON 
-              simrs_naming.indicator_id = simrs_indicator_values.indicator_id";
-
-// Check if the 'indicator_id' parameter is provided in the GET request
-if (isset($_GET['indicator_id'])) {
-  // Add a WHERE clause to filter by indicator_id
-  $query .= " WHERE simrs_naming.indicator_id = :indicator_id";
-}
-
-// Prepare the query
-$stmt = $pdo->prepare($query);
-
-// Bind parameters if necessary
-if (isset($_GET['indicator_id'])) {
-  $stmt->bindParam(':indicator_id', $_GET['indicator_id'], PDO::PARAM_INT);
-}
-
-// Execute the query
-$stmt->execute();
-
-// Fetch data as associative array
-$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Output data as JSON
-if (empty($data)) {
-  // Respond with a message indicating no data
-  header('Content-Type: application/json');
-  http_response_code(404);
-  echo json_encode(array("message" => "No data found"));
-} else {
-  // Output data as JSON
-  header('Content-Type: application/json');
-  echo json_encode($data);
-}
-?>
+--tes select 3
+SELECT 
+    CONCAT('Data for ', simrs_indicator.name) AS indicator_name,
+    CONCAT('Numerator ', simrs_indicator.name) AS numerator_indicator_name,
+    CONCAT('Denominator ', simrs_indicator.name) AS denominator_indicator_name,
+    GROUP_CONCAT(DAY(simrs_n_values.date) ORDER BY DAY(simrs_n_values.date) SEPARATOR ', ') AS days,
+    GROUP_CONCAT(simrs_n_values.value ORDER BY DAY(simrs_n_values.date) SEPARATOR ', ') AS numerator_values,
+    GROUP_CONCAT(simrs_d_values.value ORDER BY DAY(simrs_d_values.date) SEPARATOR ', ') AS denominator_values
+FROM 
+    simrs_indicator
+LEFT JOIN 
+    simrs_n_values ON simrs_indicator.id = simrs_n_values.indicator_id
+LEFT JOIN 
+    simrs_d_values ON simrs_indicator.id = simrs_d_values.indicator_id
+GROUP BY 
+    simrs_indicator.id;
