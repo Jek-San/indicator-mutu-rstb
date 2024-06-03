@@ -35,7 +35,7 @@ const ClientSideRender: React.FC<ClientSideRenderProps> = ({ children }) => {
         <Topbar />
       </div>
       <div
-        className={`flex ${
+        className={`flex items-start ${
           isLoggedIn ? (sidebarExpanded ? "ml-64 pt-16" : "ml-16 pt-16") : ""
         } bg-slate-600 text-white min-h-screen min-w-screen transition-all duration-300`}
       >

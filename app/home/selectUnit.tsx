@@ -75,7 +75,7 @@ const SelectUnit: React.FC<SelectMenuProps> = ({
       <input
         type="text"
         placeholder="---PILIH UNIT---"
-        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300 hidden"
+        className="p-2 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300 hidden"
         value={searchTerm}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}

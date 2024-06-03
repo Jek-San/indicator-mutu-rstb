@@ -19,7 +19,6 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
   value,
   onChange,
 }) => {
-
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredOptions, setFilteredOptions] = useState<Option[]>(options);
@@ -78,7 +77,7 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
       <input
         type="text"
         placeholder="---PILIH MENU---"
-        className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+        className="p-2 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
         value={searchTerm ? searchTerm : ""}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -87,7 +86,7 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
         required
       />
       {isOpen && (
-        <ul className="dropdown-menu absolute z-10 w-full bg-gray-800 rounded-md shadow-lg">
+        <ul className="dropdown-menu absolute z-10 w-full bg-white rounded-md shadow-lg">
           {filteredOptions.length === 0 ? (
             <li className="text-white py-2 pl-2 mt-2">No data available</li>
           ) : (
@@ -96,7 +95,7 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
                 key={option.id}
                 onClick={() => handleOptionClick(option)}
                 onKeyDown={(e) => handleOptionKeyDown(e, option)}
-                className=" p-2 border border-gray-300 rounded-md focus:outline-none focus:ring  focus:border-blue-300 hover:bg-gray-950"
+                className=" p-2 border border-gray-300 rounded-md focus:outline-none focus:ring  focus:border-blue-300 hover:bg-blue-600 hover:text-white"
                 tabIndex={0}
               >
                 {option.name}

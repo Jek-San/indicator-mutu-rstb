@@ -7,6 +7,7 @@ import LihatIndicatorNaming from "./lihatIndicatorNaming";
 import nookies from "nookies";
 import DeleteIndicator from "./deleteIndicator";
 import UpdateIndicator from "./updateIndicator";
+import { toast } from "sonner";
 
 type Unit = {
   id: number;
@@ -53,6 +54,7 @@ const IndicatorsClient: React.FC = () => {
         }).then((res) => res.json());
         setUnits(fetchedUnits);
       } catch (error) {
+        toast.error("Error fetching units:" + error);
         console.error("Error fetching units:", error);
       } finally {
         setLoadingUnits(false);
@@ -98,6 +100,7 @@ const IndicatorsClient: React.FC = () => {
         } else if (response.status === 404) {
           setIndicators([]);
         } else {
+          toast.error("Error fetching indicators:" + response.statusText);
           console.error("Error fetching indicators:", response.statusText);
         }
       } catch (error) {
@@ -192,7 +195,10 @@ const IndicatorsClient: React.FC = () => {
                       indicator={indicator}
                       handleDeleteIndicator={handleIndicatorAdded}
                     />
-                    <UpdateIndicator indicator={indicator} />
+                    <UpdateIndicator
+                      indicator={indicator}
+                      onIndicatorAdded={handleIndicatorAdded}
+                    />
                   </td>
                 </tr>
               ))

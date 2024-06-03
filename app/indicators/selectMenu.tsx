@@ -78,7 +78,7 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
       <input
         type="text"
         placeholder="---PILIH MENU---"
-        className="input w-full input-bordered cursor-pointer bg-gray-800 text-white rounded-md py-2 px-3"
+        className="input w-full input-bordered cursor-pointer bg-black text-white rounded-md py-2 px-3"
         value={searchTerm ? searchTerm : ""}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -89,7 +89,9 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
       {isOpen && (
         <ul className="dropdown-menu absolute z-10 w-full bg-gray-800 rounded-md shadow-lg">
           {filteredOptions.length === 0 ? (
-            <li className="text-white py-2 pl-2 mt-2">No data available</li>
+            <li className="bg-white text-white py-2 pl-2 mt-2">
+              No data available
+            </li>
           ) : (
             filteredOptions.map((option) => (
               <li

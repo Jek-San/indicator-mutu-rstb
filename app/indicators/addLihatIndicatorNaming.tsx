@@ -3,6 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import ListBox from "../components/ListBox";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Props = {
   className?: string;
@@ -96,29 +97,45 @@ export default function AddLihatIndicatorNaming(props: Props) {
     console.log(props.indicator.id, nName, dName);
     setIsMutating(true);
 
-    const res = await fetch(`${apiUrl}/simrs_naming/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        indicator_id: props.indicator.id,
-        n_name: nName,
-        d_name: dName,
-      }),
-    });
-    setIsMutating(false);
-    if (res.ok) {
-      console.log("N Name and D Name added successfully");
-      setDname("");
-      setNname("");
-      setModal(false);
-      if (props.onIndicatorAdded) {
-        props.onIndicatorAdded();
+    try {
+      const res = await fetch(`${apiUrl}/simrs_naming/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          indicator_id: props.indicator.id,
+          n_name: nName,
+          d_name: dName,
+        }),
+      });
+
+      const responseBody = await res.json();
+      console.log("Response:", res);
+      console.log("Response body:", responseBody);
+
+      if (res.ok) {
+        toast.success("N Name and D Name added successfully");
+        setDname("");
+        setNname("");
+        setModal(false);
+        if (props.onIndicatorAdded) {
+          props.onIndicatorAdded();
+        }
+        router.refresh();
+      } else if (res.status === 500) {
+        toast.error("Internal Server Error: " + responseBody.message);
+      } else {
+        toast.error("Error adding names: " + responseBody.message);
       }
-      router.refresh();
-    } else {
-      console.error("Error adding menu:", res.statusText);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error("Error adding names: " + error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
+    } finally {
+      setIsMutating(false);
     }
   };
 
@@ -145,10 +162,10 @@ export default function AddLihatIndicatorNaming(props: Props) {
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full bg-slate-800 max-w-md p-6 rounded shadow-xl">
-                <h2 className="text-2xl font-bold mb-4">
+                <h2 className="text-2xl font-bold mb-4 text-white">
                   Add New Nama Indicator
                 </h2>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="text-white">
                   <div className="form-control">
                     <label htmlFor="unitId" className="label">
                       Unit

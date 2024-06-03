@@ -5,6 +5,7 @@ import SelectMenu from "./selectMenu";
 import DataTable from "./dataTable";
 import SelectMonth from "./selectMonth";
 import nookies from "nookies";
+import { toast } from "sonner";
 
 interface Props {}
 
@@ -59,6 +60,29 @@ const Home: React.FC<Props> = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  //DEBUG SECTION //
+  useEffect(() => {
+    console.log("unitId:", unitId);
+  }, [unitId]);
+
+  useEffect(() => {
+    console.log("menuId:", menuId);
+  }, [menuId]);
+
+  useEffect(() => {
+    console.log("month:", month);
+  }, [month]);
+
+  useEffect(() => {
+    console.log("year:", year);
+  }, [year]);
+
+  useEffect(() => {
+    console.log("dataTable:", dataTable);
+  }, [dataTable]);
+
+  //DEBUG SECTION //
+
   useEffect(() => {
     const cookies = nookies.get(null);
     setUnitId(parseInt(cookies.unit_id));
@@ -87,6 +111,7 @@ const Home: React.FC<Props> = () => {
             }
           );
           if (!menuResponse.ok) {
+            toast.error("Failed to fetch menu data");
             throw new Error("Failed to fetch menu data");
           }
           const menuData = await menuResponse.json();
@@ -107,23 +132,25 @@ const Home: React.FC<Props> = () => {
     setError(null);
     try {
       setLoading(true);
-      console.log("unitId", unitId);
-      console.log("menuId", menuId);
-      console.log("year", year);
-      console.log("month", month);
+
       const dataTableResponse = await fetch(
         `${apiUrl}/simrs_indicator_values/?menu_id=${menuId}&year=${year}&month_index=${month}`,
         {
           cache: "no-store",
         }
       );
+
       if (!dataTableResponse.ok) {
+        toast.error("Failed to fetch data table");
         throw new Error("Failed to fetch data table");
       }
+
       const dataResult = await dataTableResponse.json();
+      console.log("API Response:", dataResult); // Add this line to debug
       setDataTable(dataResult);
     } catch (error: any) {
       setError(error.message);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -131,9 +158,7 @@ const Home: React.FC<Props> = () => {
 
   return (
     <>
-      <div className="py-4 pt-10 px-10 bg-gray-700 min-h-screen">
-        <h1 className="text-4xl font-bold mb-2 text-gray-100">Monthly Data</h1>
-
+      <div className="py-4 pt-6 px-10 text-black bg-gray-700 min-h-screen">
         <div className="flex items-start gap-4 mb-6">
           <div className="flex flex-col">
             <label

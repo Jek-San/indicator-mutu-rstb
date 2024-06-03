@@ -77,18 +77,26 @@ export default function MenusClient({}: Props) {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-black">
-            {menus.map((menu, i) => (
-              <tr key={menu.id}>
-                <td className="px-2 py-2 text-center hidden">{menu.id}</td>
-                <td className="px-4 py-2 text-center">{i + 1}</td>
-                <td className="px-4 py-2 text-center">{menu.name}</td>
-                <td className="px-4 py-2 flex gap-2 items-center justify-center">
-                  <UpdateMenu className="text-white" menu={menu} />
-                  <DeleteMenu menu={menu} />
-                  <LihatIndicator menu={menu} />
+            {menus.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-2 text-center">
+                  No data available
                 </td>
               </tr>
-            ))}
+            ) : (
+              menus.map((menu, i) => (
+                <tr key={menu.id}>
+                  <td className="px-2 py-2 text-center hidden">{menu.id}</td>
+                  <td className="px-4 py-2 text-center">{i + 1}</td>
+                  <td className="px-4 py-2 text-center">{menu.name}</td>
+                  <td className="px-4 py-2 flex gap-2 items-center justify-center">
+                    <UpdateMenu menu={menu} />
+                    <DeleteMenu menu={menu} />
+                    <LihatIndicator menu={menu} />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

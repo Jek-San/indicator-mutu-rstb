@@ -3,6 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import ListBox from "../components/ListBox";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Props = {
   className?: string;
@@ -52,32 +53,48 @@ export default function AddIndicator(props: Props) {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setIsMutating(true);
 
-    const res = await fetch(`${apiUrl}/simrs_indicator/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: indicatorName, menu_id: menuId }),
-    });
-    setIsMutating(false);
-    if (res.ok) {
-      setIndicatorName("");
-      setModal(false);
-      if (props.onIndicatorAdded) {
-        props.onIndicatorAdded();
+    try {
+      const res = await fetch(`${apiUrl}/simrs_indicator/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: indicatorName, menu_id: menuId }),
+      });
+
+      const responseBody = await res.json();
+      console.log("Response:", res);
+      console.log("Response body:", responseBody);
+
+      if (res.ok) {
+        toast.success("Indicator added successfully");
+        setIndicatorName("");
+        setModal(false);
+        if (props.onIndicatorAdded) {
+          props.onIndicatorAdded();
+        }
+        router.refresh();
+      } else if (res.status === 500) {
+        toast.error("Internal Server Error: " + responseBody.message);
+      } else {
+        toast.error("Error adding indicator: " + responseBody.message);
       }
-      router.refresh();
-    } else {
-      console.error("Error adding indicator:", res.statusText);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error("Error adding indicator: " + error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
+    } finally {
+      setIsMutating(false);
     }
   };
 
   return (
     <div className={props.className}>
-      <button className="btn" onClick={() => setModal(true)}>
+      <button className="btn text-white" onClick={() => setModal(true)}>
         Add Indicator
       </button>
 
@@ -98,23 +115,28 @@ export default function AddIndicator(props: Props) {
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full bg-slate-800 max-w-md p-6 rounded shadow-xl">
-                <h2 className="text-2xl font-bold mb-4">Add New Indicator</h2>
+                <h2 className="text-2xl font-bold mb-4 text-white">
+                  Add New Indicator
+                </h2>
                 <form onSubmit={handleSubmit}>
                   <div className="form-control hidden">
-                    <label htmlFor="unitId" className="label hidden">
+                    <label htmlFor="unitId" className="label text-white hidden">
                       Unit
                     </label>
                     <input
                       id="unitId"
                       type="text"
                       value={props.unitId}
-                      className="input hidden"
+                      className="input hidden bg-white text-black"
                       readOnly
                     />
                   </div>
 
                   <div className="form-control">
-                    <label htmlFor="menuId" className="label">
+                    <label
+                      htmlFor="menuId"
+                      className="label text-white text-xl"
+                    >
                       Menu
                     </label>
                     {menus.length > 0 ? (
@@ -133,7 +155,10 @@ export default function AddIndicator(props: Props) {
                     )}
                   </div>
                   <div className="form-control">
-                    <label htmlFor="indicatorName" className="label">
+                    <label
+                      htmlFor="indicatorName"
+                      className="label text-white text-xl"
+                    >
                       Indicator Name
                     </label>
                     <input
@@ -142,7 +167,7 @@ export default function AddIndicator(props: Props) {
                       type="text"
                       value={indicatorName}
                       onChange={(e) => setIndicatorName(e.target.value)}
-                      className="input"
+                      className="input bg-white text-black"
                     />
                   </div>
                   <div className="flex justify-between mt-6">

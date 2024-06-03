@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, Fragment } from "react";
-import { Listbox, Transition } from "@headlessui/react";
+import React, { useState, useEffect, useRef } from "react";
 
 type Option = {
   id: number;
@@ -75,7 +74,7 @@ const SelectUnit: React.FC<SelectMenuProps> = ({
       <input
         type="text"
         placeholder="---PILIH UNIT---"
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full px-4 py-2 border bg-white text-black border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         value={searchTerm}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -84,7 +83,7 @@ const SelectUnit: React.FC<SelectMenuProps> = ({
         required
       />
       {isOpen && (
-        <ul className="absolute z-10 w-full  border bg-black border-gray-300 rounded-lg shadow-lg mt-1">
+        <ul className="absolute z-10 w-full max-h-52 overflow-y-auto border bg-white text-black border-gray-300 rounded-lg shadow-lg mt-1">
           {filteredOptions.length === 0 ? (
             <li className="text-gray-800 bg-black py-2 px-4">
               No data available
@@ -95,7 +94,7 @@ const SelectUnit: React.FC<SelectMenuProps> = ({
                 key={option.id}
                 onClick={() => handleOptionClick(option)}
                 onKeyDown={(e) => handleOptionKeyDown(e, option)}
-                className="cursor-pointer py-2 px-4 hover:bg-gray-100"
+                className="cursor-pointer text-black py-2 px-4 hover:bg-gray-100"
                 tabIndex={0}
               >
                 {option.name}

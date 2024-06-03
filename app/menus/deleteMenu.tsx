@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { SyntheticEvent, useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
   className?: string;
@@ -33,28 +34,42 @@ export default function DeleteMenu({ className, menu, idMenu }: Props) {
     e.preventDefault(); // Prevent default action of the button click event
     setIsMutating(true);
 
-    const res = await fetch(`${apiUrl}/simrs_menu/`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: menuId }),
-    });
-    setIsMutating(false);
-    if (res.ok) {
-      // Handle success, e.g., show a success message
-      console.log("Menu deleted successfully");
-      setModal(false); // Close the modal after successful submission
-      router.refresh();
-    } else {
-      // Handle errors, e.g., show an error message
-      console.error("Error deleting unit:", res.statusText);
+    try {
+      const res = await fetch(`${apiUrl}/simrs_menu/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: menuId }),
+      });
+
+      const responseBody = await res.json();
+      console.log("Response:", res);
+      console.log("Response body:", responseBody);
+
+      if (res.ok) {
+        toast.success("Menu deleted successfully");
+        setModal(false); // Close the modal after successful submission
+        router.refresh();
+      } else if (res.status === 500) {
+        toast.error("Internal Server Error: " + responseBody.message);
+      } else {
+        toast.error("Error deleting menu: " + responseBody.message);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error("Error deleting menu: " + error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
+    } finally {
+      setIsMutating(false);
     }
   };
 
   return (
-    <div className={className}>
-      <button className="btn" onClick={toggleModal}>
+    <div className={`${className} `}>
+      <button className="btn text-white" onClick={toggleModal}>
         Delete
       </button>
       <input
@@ -64,10 +79,10 @@ export default function DeleteMenu({ className, menu, idMenu }: Props) {
         className="modal-toggle"
       />
       {modal && (
-        <div className="modal text-white">
+        <div className="modal ">
           <div className="modal-box">
-            <h3 className="font-bold">Delete </h3>
-            <p className="py-4">
+            <h3 className="font-bold text-white tracking-widest">Delete </h3>
+            <p className="py-4 text-slate-300">
               Are you sure you want to delete this {menu.name} ?
             </p>
             <div className="modal-action">
@@ -80,7 +95,7 @@ export default function DeleteMenu({ className, menu, idMenu }: Props) {
                   </button>
                   <button
                     onClick={handleDelete}
-                    className="btn pr-5 hover:bg-slate-200 hover:text-black"
+                    className="btn pr-5 hover:bg-red-500 hover:text-black"
                     type="button"
                   >
                     Delete

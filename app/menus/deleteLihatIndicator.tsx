@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { SyntheticEvent, useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
   className?: string;
@@ -38,28 +39,44 @@ export default function DeleteLihatIndicator(props: Props) {
     e.preventDefault(); // Prevent default action of the button click event
     setIsMutating(true);
 
-    const res = await fetch(`${apiUrl}/simrs_indicator/`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: props.indicator.id }),
-    });
-    setIsMutating(false);
-    if (res.ok) {
-      // Handle success, e.g., show a success message
-      console.log("Indicator deleted successfully");
-      setModal(false); // Close the modal after successful submission
-      props.handleDeleteIndicator();
-    } else {
-      // Handle errors, e.g., show an error message
-      console.error("Error deleting unit:", res.statusText);
+    try {
+      const res = await fetch(`${apiUrl}/simrs_indicator/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: props.indicator.id }),
+      });
+
+      const responseBody = await res.json();
+      console.log("Response:", res);
+      console.log("Response body:", responseBody);
+
+      if (res.ok) {
+        toast.success("Indicator deleted successfully");
+        setModal(false); // Close the modal after successful deletion
+        if (props.handleDeleteIndicator) {
+          props.handleDeleteIndicator();
+        }
+      } else if (res.status === 500) {
+        toast.error("Internal Server Error: " + responseBody.message);
+      } else {
+        toast.error("Error deleting indicator: " + responseBody.message);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error("Error deleting indicator: " + error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
+    } finally {
+      setIsMutating(false);
     }
   };
 
   return (
-    <div className={props.className}>
-      <button className="btn" onClick={toggleModal}>
+    <div className="">
+      <button className="btn text-white" onClick={toggleModal}>
         Delete
       </button>
       <input
@@ -80,7 +97,7 @@ export default function DeleteLihatIndicator(props: Props) {
                 <button className="btn loading">Deleting...</button>
               ) : (
                 <>
-                  <button className="btn" onClick={toggleModal}>
+                  <button className="" onClick={toggleModal}>
                     Close
                   </button>
                   <button

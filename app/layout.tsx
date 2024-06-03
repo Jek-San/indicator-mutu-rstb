@@ -2,6 +2,7 @@
 import React from "react";
 import "./globals.css";
 import ClientSideRender from "./clientSideLayout";
+import { Toaster } from "sonner";
 
 export const metadata = {
   icons: {
@@ -16,6 +17,7 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <head>{/* Additional meta tags can be added here */}</head>
       <body className="bg-gray-900 text-black font-sans h-full">
         <ClientSideRender>{children}</ClientSideRender>
+        <Toaster richColors />
       </body>
     </html>
   );

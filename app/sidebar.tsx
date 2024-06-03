@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AddIcon from "./components/AddIcon";
+import LogOutIcon from "./components/LogOutIcon";
 
 type Props = {
   onToggle: (expanded: boolean) => void;
@@ -37,7 +39,7 @@ export default function Sidebar({ onToggle }: Props) {
           <li key={item.href} className="group flex items-center">
             <Link href={item.href}>
               <div className=" py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer flex items-center">
-                <div className="w-6 h-6 bg-white rounded-full"></div>
+                <AddIcon />
                 <span
                   className={`${expanded ? "inline-block" : "hidden"} ml-2`}
                 >
@@ -60,7 +62,7 @@ export default function Sidebar({ onToggle }: Props) {
             className="py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer flex items-center"
           >
             <div className="flex items-center justify-center">
-              <div className="w-6 h-6 bg-white rounded-full"></div>
+              <LogOutIcon />
               <span className={`${expanded ? "inline-block" : "hidden"} ml-2`}>
                 Sign Out
               </span>

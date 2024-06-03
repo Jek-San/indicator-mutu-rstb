@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface DataTableProps {
   data: Indicator[];
@@ -137,22 +138,39 @@ const DataTable: React.FC<DataTableProps> = ({ data, month, year }) => {
     event.preventDefault();
     setMutating(true);
 
-    const res = await fetch(`${apiUrl}/simrs_indicator_values/`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(indicatorData),
-    });
+    try {
+      const res = await fetch(`${apiUrl}/simrs_indicator_values/update.php`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(indicatorData),
+      });
+      console.log(indicatorData);
+      // Log the full response for debugging
+      const responseBody = await res.json();
+      console.log("Response:", res);
+      console.log("Response body:", responseBody);
 
-    if (res.ok) {
-      // Handle success, e.g., show a success message
-      // console.log("Indicator values added successfully");
+      if (res.ok) {
+        toast.success("Indicator values added successfully");
+        setIsEdited(false);
+      } else if (res.status === 500) {
+        toast.error("Internal Server Error: " + responseBody.message);
+      } else {
+        console.log("Error adding menu: ", responseBody.message);
+        toast.error("Error adding menu: " + responseBody.message);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log("Error adding menu: ", error.message);
+        toast.error("Error adding menu: " + error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
+    } finally {
       setMutating(false);
       setIsEdited(false);
-    } else {
-      // Handle errors, e.g., show an error message
-      console.error("Error adding menu:", res.statusText);
     }
   };
 
@@ -173,7 +191,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, month, year }) => {
           parseInt(e.target.value)
         )
       }
-      className="w-full h-10 text-center border border-gray-300 rounded-md p-2"
+      className="w-full h-10 bg-white text-black text-center border border-gray-300 rounded-md p-2"
     />
   );
 
@@ -201,15 +219,15 @@ const DataTable: React.FC<DataTableProps> = ({ data, month, year }) => {
   };
 
   return (
-    <div className="p-8 bg-gray-100">
+    <div className="p-2 bg-gray-100 rounded-sm">
       <h2 className="text-3xl font-bold mb-6 text-gray-800">
         Data Nilai Indicator
       </h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md">
-          <thead className="bg-gray-100 text-gray-700">
-            <tr>
-              <th rowSpan={2} className="border px-4 py-2 text-center">
+      <div className="overflow-x-auto max-h-[26rem] overflow-y-auto">
+        <table className="  min-w-full bg-white border  rounded-lg  shadow-md ">
+          <thead className="sticky top-0 bg-blue-200 text-gray-700   ">
+            <tr className="">
+              <th rowSpan={2} className="border  px-4 py-2 text-center  ">
                 No
               </th>
               <th

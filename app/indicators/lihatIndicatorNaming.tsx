@@ -116,11 +116,9 @@ export default function LihatIndicatorNaming(props: Props) {
 
   return (
     <>
-      <div className="btn text-white">
-        <button type="button" onClick={openModal}>
-          Lihat Nama Indicator
-        </button>
-      </div>
+      <button className="btn text-white" type="button" onClick={openModal}>
+        Lihat Nama Indicator
+      </button>
 
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog
@@ -160,7 +158,7 @@ export default function LihatIndicatorNaming(props: Props) {
                       <tr>
                         <th className="px-2 py-2 hidden">Id</th>
                         <th className="px-2 py-2 ">Type</th>
-                        <th className="px-4 py-2">Inidicator Name</th>
+                        <th className="px-4 py-2">Indicator Name</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200 text-black">

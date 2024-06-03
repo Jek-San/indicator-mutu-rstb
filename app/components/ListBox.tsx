@@ -71,7 +71,7 @@ const ListBox: React.FC<ListBoxProps> = ({ options, value, onChange }) => {
       <input
         type="text"
         placeholder="---PILIH MENU---"
-        className="input w-full input-bordered cursor-pointer bg-gray-800 text-white rounded-md py-2 px-3"
+        className="input w-full input-bordered cursor-pointer bg-white  text-black rounded-md py-2 px-3"
         value={searchTerm}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -80,16 +80,16 @@ const ListBox: React.FC<ListBoxProps> = ({ options, value, onChange }) => {
         required
       />
       {isOpen && (
-        <ul className="dropdown-menu absolute z-10 w-full bg-gray-800 rounded-md shadow-lg">
+        <ul className="dropdown-menu absolute z-10 w-full   rounded-md shadow-lg">
           {filteredOptions.length === 0 ? (
-            <li className="text-white py-2 pl-2 mt-2">No data available</li>
+            <li className="text-black py-2 pl-2 mt-2">No data available</li>
           ) : (
             filteredOptions.map((option) => (
               <li
                 key={option.id}
                 onClick={() => handleOptionClick(option)}
                 onKeyDown={(e) => handleOptionKeyDown(e, option)}
-                className="dropdown-item cursor-pointer text-white py-2 hover:bg-gray-700 pl-2 mt-2"
+                className="dropdown-item cursor-pointer text-black py-2 bg-white hover:bg-gray-700 hover:text-white pl-2 mt-2"
                 tabIndex={0}
               >
                 {option.name}

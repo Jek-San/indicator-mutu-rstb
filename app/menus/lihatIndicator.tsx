@@ -74,8 +74,8 @@ export default function LihatIndicator(props: Props) {
 
   return (
     <>
-      <div className="btn text-white">
-        <button type="button" onClick={openModal} className="">
+      <div className="">
+        <button type="button" onClick={openModal} className="btn text-white">
           Lihat Indicator
         </button>
       </div>
@@ -158,7 +158,7 @@ export default function LihatIndicator(props: Props) {
                 <div className="mt-4 flex justify-between">
                   <button
                     type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    className="btn bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                     onClick={closeModal}
                   >
                     Close

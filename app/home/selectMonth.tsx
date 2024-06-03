@@ -30,7 +30,7 @@ const SelectMonth: React.FC<SelectMonthProps> = ({ value, onChange }) => {
     <select
       value={value === null ? "" : value}
       onChange={handleChange}
-      className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+      className="p-2 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
     >
       <option value="" disabled hidden>
         ---Select Month---

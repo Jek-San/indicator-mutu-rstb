@@ -109,7 +109,7 @@ const SignUp: React.FC = () => {
                   id="usn"
                   name="usn"
                   placeholder="Email address / Username"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white text-black px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -124,7 +124,7 @@ const SignUp: React.FC = () => {
                   id="pas"
                   name="pas"
                   placeholder="Password"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-white text-black border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

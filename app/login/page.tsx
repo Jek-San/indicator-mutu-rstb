@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const Login: React.FC = () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -32,11 +33,13 @@ const Login: React.FC = () => {
       document.cookie = `userName=${data.userName}; path=/;`;
       setUsername("");
       setPassword("");
+      toast.message("Login successful");
       setMessage("Login successful");
       setMutating(false);
       window.location.reload();
     } else {
       console.log(res.json());
+      toast.error("Pastikan Username dan Password Anda Benar");
       setMessage("Login Failed");
     }
   };
@@ -57,7 +60,7 @@ const Login: React.FC = () => {
           type="image/x-icon"
         />
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-400 to-indigo-600">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-400 to-indigo-600 text-black">
         <div className="w-full max-w-4xl p-8 bg-white shadow-2xl rounded-2xl flex">
           <div className="w-1/2 flex justify-center items-center">
             <Image
@@ -92,7 +95,7 @@ const Login: React.FC = () => {
                   id="usn"
                   name="usn"
                   placeholder="Email address / Username"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -107,7 +110,7 @@ const Login: React.FC = () => {
                   id="pas"
                   name="pas"
                   placeholder="Password"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

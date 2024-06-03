@@ -2,6 +2,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import Dropdown from "../components/Dropdown";
+import { toast } from "sonner";
 
 type Props = {
   className?: string;
@@ -63,27 +64,43 @@ export default function AddMenu(props: Props) {
 
     setIsMutating(true);
 
-    const res = await fetch(`${apiUrl}/simrs_menu/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: menuName, unit_id: props.unitId }),
-    });
-    setIsMutating(false);
-    if (res.ok) {
-      console.log("Menu added successfully");
-      setModal(false);
-      if (props.onMenuAdded) {
-        props.onMenuAdded();
+    try {
+      const res = await fetch(`${apiUrl}/simrs_menu/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: menuName, unit_id: props.unitId }),
+      });
+
+      const responseBody = await res.json();
+      console.log("Response:", res);
+      console.log("Response body:", responseBody);
+
+      if (res.ok) {
+        toast.success("Menu added successfully");
+        setMenuName("");
+        setModal(false);
+        if (props.onMenuAdded) {
+          props.onMenuAdded();
+        }
+      } else if (res.status === 500) {
+        toast.error("Internal Server Error: " + responseBody.message);
+      } else {
+        toast.error("Error adding menu: " + responseBody.message);
       }
-    } else {
-      console.error("Error adding menu:", res.statusText);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error("Error adding menu: " + error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
+    } finally {
+      setIsMutating(false);
     }
   };
-
   return (
-    <div className={props.className}>
+    <div className={props.className + " text-white"}>
       <button className="btn" onClick={() => setModal(true)}>
         Add Menu
       </button>
@@ -104,7 +121,7 @@ export default function AddMenu(props: Props) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full bg-slate-800 max-w-md p-6 rounded shadow-xl">
+              <Dialog.Panel className="w-full bg-slate-800 max-w-md p-6 rounded shadow-xl text-white">
                 <h2 className="text-2xl font-bold mb-4">Add New Menu</h2>
                 <form onSubmit={handleSubmit}>
                   <div className="form-control">
