@@ -1,0 +1,18 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import nookies from "nookies";
+type Props = {};
+
+export default function TextUnit({}: Props) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const [unitName, setUnitName] = useState("");
+  useEffect(() => {
+    const cookies = nookies.get(null);
+    const unitId = cookies.unit_id;
+    if (unitId === "") {
+      const fetchData = async () => {
+        Trophy;
+      };
+    }
+  });
+}

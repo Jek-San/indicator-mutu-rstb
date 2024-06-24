@@ -89,7 +89,7 @@ const IndicatorsClient: React.FC = () => {
     if (unitId !== null && menuId !== null) {
       try {
         const response = await fetch(
-          `${apiUrl}/simrs_indicator/?unit_id=${unitId}&menu_id=${menuId}`,
+          `http://localhost:8000/api/simrs_indicator/?unit_id=${unitId}&menu_id=${menuId}`,
           {
             cache: "no-store",
           }
